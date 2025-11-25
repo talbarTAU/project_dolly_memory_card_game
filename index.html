@@ -117,6 +117,42 @@
             stroke-linejoin: round;
             filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));
         }
+
+        /* --- NEW MERGE ANIMATIONS --- */
+        
+        /* The container moves */
+        .card.merging {
+            z-index: 50;
+            animation: merge-fly 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* The inner content pulses/glows */
+        .card.merging .card-inner {
+            animation: merge-glow 1.2s ease-in-out forwards;
+        }
+
+        @keyframes merge-fly {
+            0% { transform: translate(0, 0) rotate(var(--rot-start)); }
+            40% { transform: translate(var(--tx), var(--ty)) scale(1.1) rotate(0deg); } /* Meet in middle */
+            60% { transform: translate(var(--tx), var(--ty)) scale(1.1) rotate(0deg); } /* Hover */
+            100% { transform: translate(0, 0) rotate(0deg); } /* Return */
+        }
+
+        @keyframes merge-glow {
+            0% { box-shadow: none; border-color: var(--rick-blue); }
+            40% { 
+                box-shadow: 0 0 40px var(--toxic-green), 0 0 80px var(--portal-green); 
+                border-color: white;
+                filter: brightness(1.5);
+            }
+            60% { 
+                box-shadow: 0 0 60px var(--toxic-green), 0 0 100px var(--portal-green); 
+                border-color: white;
+                filter: brightness(1.2);
+            }
+            100% { box-shadow: none; border-color: var(--toxic-green); }
+        }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start pt-8 p-4">
@@ -127,7 +163,7 @@
             <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--toxic-green)] to-[var(--rick-blue)] drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                 PROJECT DOLLY
             </h1>
-            <p class="text-sm text-[var(--portal-green)] mt-1 font-bold">CLONE MATCHING PROTOCOL</p>
+            <p class="text-sm text-[var(--portal-green)] mt-1 font-bold">RESTORATION PROTOCOL</p>
         </div>
         
         <div class="flex gap-4 bg-black/60 p-4 rounded-xl border-4 border-[var(--purple-haze)] backdrop-blur-md rotate-1">
@@ -152,10 +188,11 @@
     <!-- Game Grid -->
     <main class="w-full max-w-4xl z-10 relative mb-8">
         <div class="bg-yellow-300/90 border-4 border-black p-2 text-black text-center font-bold mb-4 rounded-lg -rotate-1 mx-auto max-w-md shadow-[4px_4px_0px_rgba(0,0,0,1)] text-sm">
-            Cards show Cartoons in Preview // Images when downloaded
+            MATCH 2 CLONES TO MERGE & RESTORE ORIGINAL!
         </div>
 
-        <div id="game-grid" class="grid grid-cols-4 gap-3 md:gap-5 w-full mx-auto perspective-1000 p-4 bg-black/30 rounded-3xl border-4 border-[var(--toxic-green)]">
+        <!-- Adjusted Grid for 12 Cards (3x4 or 4x3) -->
+        <div id="game-grid" class="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-5 w-full mx-auto perspective-1000 p-4 bg-black/30 rounded-3xl border-4 border-[var(--toxic-green)]">
             <!-- Cards will be injected here by JS -->
         </div>
     </main>
@@ -188,10 +225,10 @@
     </div>
 
     <script>
-        // Paired Assets with both Image Path (for download) and Fallback SVG (for preview)
+        // Updated Assets List based on User Uploads
         const pairedAssets = [
             {
-                type: 'sheep',
+                type: 'dolly',
                 original: {
                     name: 'Dolly',
                     img: 'DollyOrig.png',
@@ -208,93 +245,65 @@
                 original: {
                     name: 'Coffee Machine',
                     img: 'CoffeeMachineOrig.png',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
-                            <rect x="16" y="12" width="32" height="40" rx="4" fill="#37474F" stroke="black" stroke-width="3"/>
-                            <rect x="20" y="24" width="24" height="20" rx="2" fill="#CFD8DC" stroke="black" stroke-width="2"/>
-                            <path d="M22 34 L 42 34 L 40 42 L 24 42 Z" fill="#795548" stroke="black" stroke-width="2"/>
-                            <rect x="20" y="8" width="24" height="4" fill="#263238" stroke="black" stroke-width="2"/>
-                            <circle cx="42" cy="18" r="2" fill="#39ff14"/>
-                          </svg>`
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="16" y="12" width="32" height="40" rx="4" fill="#37474F" stroke="black" stroke-width="3"/><rect x="20" y="24" width="24" height="20" rx="2" fill="#CFD8DC" stroke="black" stroke-width="2"/><path d="M22 34 L 42 34 L 40 42 L 24 42 Z" fill="#795548" stroke="black" stroke-width="2"/><rect x="20" y="8" width="24" height="4" fill="#263238" stroke="black" stroke-width="2"/><circle cx="42" cy="18" r="2" fill="#39ff14"/></svg>`
                 },
                 clone: {
                     name: 'Angry Machine',
                     img: 'CoffeeMachineMute.png',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
-                            <path d="M14 12 L 50 10 L 48 54 L 16 52 Z" fill="#546E7A" stroke="black" stroke-width="3"/>
-                            <!-- Teeth -->
-                            <path d="M20 28 L 24 38 L 28 28 M 36 28 L 40 38 L 44 28" fill="white" stroke="black" stroke-width="2"/>
-                            <!-- Angry Eye -->
-                            <circle cx="32" cy="20" r="6" fill="red" stroke="black" stroke-width="2"/>
-                            <circle cx="32" cy="20" r="2" fill="black"/>
-                            <!-- Tentacles -->
-                            <path d="M10 40 Q 4 50, 12 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/>
-                            <path d="M54 40 Q 60 50, 52 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/>
-                          </svg>`
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M14 12 L 50 10 L 48 54 L 16 52 Z" fill="#546E7A" stroke="black" stroke-width="3"/><path d="M20 28 L 24 38 L 28 28 M 36 28 L 40 38 L 44 28" fill="white" stroke="black" stroke-width="2"/><circle cx="32" cy="20" r="6" fill="red" stroke="black" stroke-width="2"/><circle cx="32" cy="20" r="2" fill="black"/><path d="M10 40 Q 4 50, 12 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M54 40 Q 60 50, 52 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`
                 }
             },
             {
-                type: 'tool',
+                type: 'monitor',
+                original: {
+                    name: 'Monitor',
+                    img: 'MonitorOrig.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="8" y="12" width="48" height="32" rx="2" fill="#B0BEC5" stroke="black" stroke-width="3"/><rect x="12" y="16" width="40" height="24" fill="#E0F7FA" stroke="black" stroke-width="2"/><path d="M24 44 L 20 54 L 44 54 L 40 44" fill="#78909C" stroke="black" stroke-width="3"/></svg>`
+                },
+                clone: {
+                    name: 'Glitch Screen',
+                    img: 'MonitorMute.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M6 10 L 58 14 L 54 48 L 10 46 Z" fill="#546E7A" stroke="black" stroke-width="3"/><rect x="14" y="18" width="36" height="20" fill="#000" stroke="black"/><path d="M18 22 L 46 34" stroke="#39ff14" stroke-width="2"/><path d="M20 50 L 16 58 L 48 56 L 44 48" fill="#37474F" stroke="black" stroke-width="3"/></svg>`
+                }
+            },
+            {
+                type: 'robot',
+                original: {
+                    name: 'Robot',
+                    img: 'RobotOrig.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="20" y="16" width="24" height="20" rx="4" fill="#B39DDB" stroke="black" stroke-width="3"/><rect x="24" y="36" width="16" height="16" fill="#9575CD" stroke="black" stroke-width="3"/><circle cx="26" cy="24" r="2" fill="white"/><circle cx="38" cy="24" r="2" fill="white"/><line x1="28" y1="30" x2="36" y2="30" stroke="black" stroke-width="2"/></svg>`
+                },
+                clone: {
+                    name: 'Rogue Bot',
+                    img: 'RobotMute.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M18 14 L 46 18 L 44 40 L 22 38 Z" fill="#F48FB1" stroke="black" stroke-width="3"/><circle cx="28" cy="24" r="4" fill="red" stroke="black"/><circle cx="40" cy="22" r="2" fill="black"/><path d="M26 32 L 30 36 L 38 30" stroke="black" stroke-width="2" fill="none"/><path d="M44 26 L 52 20 M 20 24 L 12 18" stroke="#39ff14" stroke-width="3"/></svg>`
+                }
+            },
+            {
+                type: 'tablelight',
+                original: {
+                    name: 'Table Light',
+                    img: 'TableLightOrig.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M32 54 L 32 30" stroke="#795548" stroke-width="4"/><path d="M20 54 L 44 54" stroke="black" stroke-width="3"/><path d="M20 30 L 44 30 L 38 10 L 26 10 Z" fill="#FFF59D" stroke="black" stroke-width="3"/></svg>`
+                },
+                clone: {
+                    name: 'Possessed Lamp',
+                    img: 'TableLightMute.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M32 54 Q 42 40, 32 30" stroke="#5D4037" stroke-width="4"/><path d="M20 30 L 44 34 L 40 10 L 24 14 Z" fill="#FFCC80" stroke="black" stroke-width="3"/><circle cx="32" cy="22" r="4" fill="#39ff14"/><path d="M22 54 L 42 56" stroke="black" stroke-width="3"/></svg>`
+                }
+            },
+            // Keeping Microscope as 6th pair to maintain a nice rectangular grid
+            {
+                type: 'microscope',
                 original: {
                     name: 'Microscope',
                     img: 'MicroscopeOrig.png',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
-                            <path d="M32 10 L 32 36" stroke="#90A4AE" stroke-width="6" stroke-linecap="round"/>
-                            <path d="M24 36 L 40 36" stroke="black" stroke-width="3"/> <!-- Stage -->
-                            <path d="M20 54 L 44 54 L 48 48 L 16 48 Z" fill="#546E7A" stroke="black" stroke-width="3"/> <!-- Base -->
-                            <circle cx="38" cy="46" r="4" fill="#37474F" stroke="black" stroke-width="2"/> <!-- Knob -->
-                            <path d="M28 10 L 36 10 L 40 18 L 24 18 Z" fill="#CFD8DC" stroke="black" stroke-width="2"/> <!-- Eyepiece -->
-                          </svg>`
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M32 10 L 32 36" stroke="#90A4AE" stroke-width="6" stroke-linecap="round"/><path d="M24 36 L 40 36" stroke="black" stroke-width="3"/><path d="M20 54 L 44 54 L 48 48 L 16 48 Z" fill="#546E7A" stroke="black" stroke-width="3"/><circle cx="38" cy="46" r="4" fill="#37474F" stroke="black" stroke-width="2"/><path d="M28 10 L 36 10 L 40 18 L 24 18 Z" fill="#CFD8DC" stroke="black" stroke-width="2"/></svg>`
                 },
                 clone: {
                     name: 'Mutated Scope',
                     img: 'MicroscopeMute.png',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
-                            <path d="M28 14 Q 20 24, 34 36" stroke="#EF9A9A" stroke-width="8" stroke-linecap="round"/>
-                            <circle cx="28" cy="14" r="5" fill="#C62828" stroke="black"/> <!-- Eye on stalk -->
-                            <circle cx="28" cy="14" r="2" fill="yellow"/>
-                            <path d="M22 54 L 46 54 L 48 50 L 18 46 Z" fill="#546E7A" stroke="black" stroke-width="3"/> <!-- Broken Base -->
-                            <path d="M40 30 Q 50 30, 48 40" stroke="#39ff14" stroke-width="4" fill="none"/> <!-- Slime -->
-                            <path d="M30 40 L 34 46 L 38 40" fill="white" stroke="black" stroke-width="1"/> <!-- Fang -->
-                          </svg>`
-                }
-            },
-             {
-                type: 'rat',
-                original: {
-                    name: 'Rat',
-                    img: '', /* No image provided, fallback to SVG */
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><ellipse cx="32" cy="38" rx="18" ry="12" fill="#BDBDBD" stroke="black" stroke-width="3"/><path d="M44 38 L 58 38 L 50 28 Z" fill="#BDBDBD" stroke="black" stroke-width="3"/><circle cx="52" cy="34" r="2" fill="red"/><path d="M14 38 C 10 30, 4 30, 4 46" stroke="#FFAB91" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="44" cy="26" r="4" fill="#FFAB91" stroke="black" stroke-width="3"/></svg>`
-                },
-                clone: {
-                    name: 'Brain Rat',
-                    img: '',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><ellipse cx="32" cy="50" rx="12" ry="8" fill="#7E57C2" stroke="black" stroke-width="3"/><path d="M16 36 C 16 10, 48 10, 48 36 C 48 42, 16 42, 16 36 Z" fill="#FF8A80" stroke="black" stroke-width="3"/><path d="M22 24 Q 32 16 42 24 M 26 32 Q 32 28 38 32" stroke="#D32F2F" stroke-width="2" fill="none"/><circle cx="28" cy="40" r="3" fill="#39ff14" stroke="black" stroke-width="1"/><circle cx="36" cy="40" r="3" fill="#39ff14" stroke="black" stroke-width="1"/></svg>`
-                }
-            },
-            {
-                type: 'scientist',
-                original: {
-                    name: 'Dr. Sanchez',
-                    img: '',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M20 20 C 20 10, 44 10, 44 20 L 44 26 L 20 26 Z" fill="#87CEEB" stroke="black" stroke-width="3"/><rect x="24" y="26" width="16" height="14" fill="#FFE0B2" stroke="black" stroke-width="3"/><circle cx="28" cy="32" r="2" fill="black"/> <circle cx="36" cy="32" r="2" fill="black"/><line x1="29" y1="36" x2="35" y2="36" stroke="black" stroke-width="2"/><path d="M16 40 L 48 40 L 52 62 L 12 62 Z" fill="white" stroke="black" stroke-width="3"/></svg>`
-                },
-                clone: {
-                    name: 'Cronenberg',
-                    img: '',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M10 30 Q 20 10 40 20 Q 60 15 55 40 Q 60 60 35 55 Q 10 60 10 30 Z" fill="#EF9A9A" stroke="black" stroke-width="3"/><path d="M30 40 L 45 40 L 42 50 L 33 50 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="25" cy="25" r="5" fill="yellow" stroke="black" stroke-width="2"/><circle cx="25" cy="25" r="2" fill="black"/><circle cx="45" cy="35" r="3" fill="yellow" stroke="black" stroke-width="2"/><circle cx="45" cy="35" r="1" fill="black"/><path d="M20 45 L 30 50 L 25 55" stroke="black" stroke-width="3" fill="none"/></svg>`
-                }
-            },
-            {
-                type: 'flask',
-                original: {
-                    name: 'Flask',
-                    img: '',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="28" y="8" width="8" height="16" fill="#B2DFDB" stroke="black" stroke-width="3"/><path d="M32 24 L 16 56 C 12 62, 52 62, 48 56 L 32 24 Z" fill="#B2DFDB" stroke="black" stroke-width="3"/><path d="M24 40 L 40 40 L 46 54 C 48 58, 16 58, 18 54 Z" fill="#009688"/><circle cx="28" cy="48" r="2" fill="white" fill-opacity="0.5"/></svg>`
-                },
-                clone: {
-                    name: 'Slime',
-                    img: '',
-                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="26" y="10" width="12" height="10" fill="#B2DFDB" stroke="black" stroke-width="3"/><path d="M24 8 L 40 12" stroke="black" stroke-width="2"/><path d="M20 22 Q 10 30, 14 44 Q 18 58, 32 56 Q 46 58, 50 44 Q 54 30, 44 22" fill="#39ff14" stroke="black" stroke-width="3"/><circle cx="26" cy="36" r="4" fill="yellow" stroke="black"/><circle cx="38" cy="34" r="5" fill="yellow" stroke="black"/><path d="M28 48 Q 32 52, 36 48" stroke="black" stroke-width="2" fill="none"/></svg>`
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M28 14 Q 20 24, 34 36" stroke="#EF9A9A" stroke-width="8" stroke-linecap="round"/><circle cx="28" cy="14" r="5" fill="#C62828" stroke="black"/><circle cx="28" cy="14" r="2" fill="yellow"/><path d="M22 54 L 46 54 L 48 50 L 18 46 Z" fill="#546E7A" stroke="black" stroke-width="3"/><path d="M40 30 Q 50 30, 48 40" stroke="#39ff14" stroke-width="4" fill="none"/><path d="M30 40 L 34 46 L 38 40" fill="white" stroke="black" stroke-width="1"/></svg>`
                 }
             }
         ];
@@ -326,8 +335,20 @@
         function initGame() {
             deck = [];
             pairedAssets.forEach((pair, index) => {
-                deck.push({ id: `orig-${index}`, type: pair.type, isClone: false, data: pair.original });
-                deck.push({ id: `clone-${index}`, type: pair.type, isClone: true, data: pair.clone });
+                deck.push({ 
+                    id: `clone-1-${index}`, 
+                    type: pair.type, 
+                    isClone: true, 
+                    data: pair.clone, 
+                    originalData: pair.original 
+                });
+                deck.push({ 
+                    id: `clone-2-${index}`, 
+                    type: pair.type, 
+                    isClone: true, 
+                    data: pair.clone, 
+                    originalData: pair.original 
+                });
             });
             shuffle(deck);
 
@@ -353,6 +374,23 @@
                 [array[i], array[j]] = [array[j], array[i]];
             }
         }
+        
+        function generateCardContent(data) {
+            return `
+                <div class="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center asset-content">
+                    <div class="absolute inset-0 z-0">
+                        ${data.svg}
+                    </div>
+                    ${data.img ? `
+                    <img 
+                        src="${data.img}" 
+                        class="absolute inset-0 w-full h-full object-contain z-10 transition-opacity duration-200"
+                        onerror="this.style.opacity='0'"
+                        alt="${data.name}"
+                    />` : ''}
+                </div>
+            `;
+        }
 
         function renderGrid() {
             gridElement.innerHTML = '';
@@ -361,25 +399,15 @@
                 const cardElement = document.createElement('div');
                 const randomRot = Math.random() * 4 - 2; 
                 cardElement.className = 'card aspect-square relative h-24 md:h-32 w-full';
+                
+                // Store rotation as variable for the animation to use as starting point
+                cardElement.style.setProperty('--rot-start', `${randomRot}deg`);
                 cardElement.style.transform = `rotate(${randomRot}deg)`;
+                
                 cardElement.dataset.type = cardData.type;
                 cardElement.dataset.id = cardData.id;
 
-                // Smart Layering: SVG is always there. Image is on top. If Image fails, it hides.
-                let contentHtml = `
-                    <div class="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
-                        <div class="absolute inset-0 z-0">
-                            ${cardData.data.svg}
-                        </div>
-                        ${cardData.data.img ? `
-                        <img 
-                            src="${cardData.data.img}" 
-                            class="absolute inset-0 w-full h-full object-contain z-10 transition-opacity duration-200"
-                            onerror="this.style.opacity='0'"
-                            alt="${cardData.data.name}"
-                        />` : ''}
-                    </div>
-                `;
+                let contentHtml = generateCardContent(cardData.data);
 
                 cardElement.innerHTML = `
                     <div class="card-inner w-full h-full transition-all duration-500">
@@ -389,7 +417,7 @@
                         <div class="card-face card-back flex flex-col items-center justify-center p-1">
                             <div class="matched-slime"></div>
                             ${contentHtml}
-                            <span class="text-[10px] md:text-xs font-extrabold text-black uppercase tracking-tighter leading-tight mt-1 relative z-20 bg-white/50 px-1 rounded">${cardData.data.name}</span>
+                            <span class="text-[10px] md:text-xs font-extrabold text-black uppercase tracking-tighter leading-tight mt-1 relative z-20 bg-white/50 px-1 rounded card-name">${cardData.data.name}</span>
                         </div>
                     </div>
                 `;
@@ -410,12 +438,14 @@
             if (flippedCards.length === 2) {
                 moves++;
                 movesElement.textContent = moves;
-                checkForMatch();
+                lockBoard = true; // Immediately lock board to prevent extra clicks
+                // Wait 800ms for the flip animation to complete before checking/merging
+                setTimeout(checkForMatch, 800);
             }
         }
 
         function checkForMatch() {
-            lockBoard = true;
+            // lockBoard is already true
             const [card1, card2] = flippedCards;
             const isMatch = card1.dataset.type === card2.dataset.type;
 
@@ -428,17 +458,79 @@
 
         function disableCards() {
             const [card1, card2] = flippedCards;
+            
+            // --- ANIMATION CALCULATION ---
+            const rect1 = card1.getBoundingClientRect();
+            const rect2 = card2.getBoundingClientRect();
+            
+            const center1X = rect1.left + rect1.width / 2;
+            const center1Y = rect1.top + rect1.height / 2;
+            const center2X = rect2.left + rect2.width / 2;
+            const center2Y = rect2.top + rect2.height / 2;
+            
+            const midX = (center1X + center2X) / 2;
+            const midY = (center1Y + center2Y) / 2;
+            
+            // Calculate vector to center for each card
+            const tx1 = midX - center1X;
+            const ty1 = midY - center1Y;
+            const tx2 = midX - center2X;
+            const ty2 = midY - center2Y;
+            
+            // Set props for animation
+            card1.style.setProperty('--tx', `${tx1}px`);
+            card1.style.setProperty('--ty', `${ty1}px`);
+            card2.style.setProperty('--tx', `${tx2}px`);
+            card2.style.setProperty('--ty', `${ty2}px`);
+            
+            // Trigger Animation
+            card1.classList.add('merging');
+            card2.classList.add('merging');
+
+            // --- MID-ANIMATION SWAP (at 500ms) ---
             setTimeout(() => {
+                // Find data
+                const card1OriginalData = deck.find(c => c.id === card1.dataset.id).originalData;
+                const card2OriginalData = deck.find(c => c.id === card2.dataset.id).originalData;
+                
+                // Helper to update DOM
+                const updateCardDOM = (cardEl, originalData) => {
+                    const nameEl = cardEl.querySelector('.card-name');
+                    const assetContainer = cardEl.querySelector('.asset-content').parentElement;
+                    
+                    nameEl.style.opacity = '0'; // Quick fade out text
+                    assetContainer.innerHTML = generateCardContent(originalData);
+                    nameEl.textContent = originalData.name;
+                    
+                    setTimeout(() => { nameEl.style.opacity = '1'; }, 100);
+                };
+                
+                updateCardDOM(card1, card1OriginalData);
+                updateCardDOM(card2, card2OriginalData);
+
+            }, 500); // Swap content while they are touching/glowing
+
+            // --- CLEANUP (at 1200ms) ---
+            setTimeout(() => {
+                card1.classList.remove('merging');
+                card2.classList.remove('merging');
                 card1.classList.add('matched');
                 card2.classList.add('matched');
+
                 matchedPairs++;
                 flippedCards = [];
                 lockBoard = false;
-                if (matchedPairs === pairedAssets.length) endGame();
-            }, 500);
+                
+                if (matchedPairs === pairedAssets.length) {
+                    clearInterval(timerInterval);
+                    // Delay calling endGame so user can see the final merge
+                    setTimeout(endGame, 1500);
+                }
+            }, 1200);
         }
 
         function unflipCards() {
+            // Already waited 800ms to get here, wait another 1000ms for viewing
             setTimeout(() => {
                 flippedCards.forEach(card => card.classList.remove('flipped'));
                 flippedCards = [];
