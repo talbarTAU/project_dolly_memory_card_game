@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dolly: Clone Chaos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Import a weird, cartoony sci-fi font -->
+    <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        /* RICK AND MORTY STYLE THEME */
+        :root {
+            --toxic-green: #39ff14;
+            --portal-green: #bfff00;
+            --rick-blue: #00b5cc;
+            --dark-matter: #1a1a2e;
+            --purple-haze: #4a0e4e;
+        }
+
+        body {
+            font-family: 'Gloria Hallelujah', cursive;
+            background-color: var(--dark-matter);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(57, 255, 20, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(74, 14, 78, 0.2) 0%, transparent 60%),
+                linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM32 63c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm57-13c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2339ff14' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            color: #e2e8f0;
+        }
+
+        h1, .tech-font {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        /* Card Flip Animation Styles */
+        .perspective-1000 { perspective: 1000px; }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+
+        /* Front and Back common styles */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            border: 3px solid black; 
+            overflow: hidden;
+        }
+
+        /* Card Back (Face down) */
+        .card-front {
+            background: rgb(34,193,195);
+            background: radial-gradient(circle, rgba(57,255,20,1) 0%, rgba(0,181,204,1) 100%);
+            animation: portal-pulse 2s infinite alternate;
+        }
+
+        @keyframes portal-pulse {
+            0% { box-shadow: inset 0 0 20px var(--toxic-green); }
+            100% { box-shadow: inset 0 0 50px var(--portal-green); }
+        }
+
+        /* Card Front (Face up - revealed) */
+        .card-back {
+            background-color: #f0fce7;
+            transform: rotateY(180deg);
+            border-color: var(--rick-blue);
+        }
+
+        .card.matched .card-back {
+            border-color: var(--toxic-green);
+            background-color: #dcfce7;
+            box-shadow: 0 0 20px var(--toxic-green);
+        }
+
+        /* Slime effect on matched cards */
+        .matched-slime {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20Z' fill='%2339ff14' fill-opacity='0.5'/%3E%3C/svg%3E");
+            background-size: cover;
+        }
+
+        .card.matched .matched-slime {
+            opacity: 1;
+            animation: slime-drip 2s infinite;
+        }
+        
+        .cartoon-svg {
+            width: 100%;
+            height: 100%;
+            stroke: black;
+            stroke-width: 2.5px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start pt-8 p-4">
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 z-10 relative">
+        <div class="text-center md:text-left mb-4 md:mb-0 bg-black/40 p-4 rounded-2xl border-4 border-black -rotate-2">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--toxic-green)] to-[var(--rick-blue)] drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                PROJECT DOLLY
+            </h1>
+            <p class="text-sm text-[var(--portal-green)] mt-1 font-bold">CLONE MATCHING PROTOCOL</p>
+        </div>
+        
+        <div class="flex gap-4 bg-black/60 p-4 rounded-xl border-4 border-[var(--purple-haze)] backdrop-blur-md rotate-1">
+            <div class="text-center">
+                <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Moves</p>
+                <p id="move-count" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">0</p>
+            </div>
+            <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
+            <div class="text-center">
+                <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Time</p>
+                <p id="timer" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">00:00</p>
+            </div>
+            <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
+            <div class="text-center flex items-center">
+                <button onclick="restartGame()" class="p-2 bg-[var(--rick-blue)] hover:bg-[var(--toxic-green)] border-2 border-black rounded-full transition-all group active:translate-y-1" title="Restart">
+                    <i data-lucide="skull" class="w-6 h-6 text-black group-hover:animate-spin"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Game Grid -->
+    <main class="w-full max-w-4xl z-10 relative mb-8">
+        <div class="bg-yellow-300/90 border-4 border-black p-2 text-black text-center font-bold mb-4 rounded-lg -rotate-1 mx-auto max-w-md shadow-[4px_4px_0px_rgba(0,0,0,1)] text-sm">
+            Cards show Cartoons in Preview // Images when downloaded
+        </div>
+
+        <div id="game-grid" class="grid grid-cols-4 gap-3 md:gap-5 w-full mx-auto perspective-1000 p-4 bg-black/30 rounded-3xl border-4 border-[var(--toxic-green)]">
+            <!-- Cards will be injected here by JS -->
+        </div>
+    </main>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[var(--dark-matter)] border-8 border-[var(--toxic-green)] p-8 rounded-3xl max-w-md w-full text-center shadow-[0_0_50px_var(--toxic-green)] transform scale-90 opacity-0 transition-all duration-300 relative overflow-hidden" id="modal-content">
+            <div class="relative z-10">
+                <div class="inline-block p-4 rounded-full bg-[var(--toxic-green)] border-4 border-black mb-4 animate-bounce">
+                    <i data-lucide="flask-conical" class="w-16 h-16 text-black fill-current"></i>
+                </div>
+                <h2 class="text-4xl font-extrabold text-[var(--toxic-green)] mb-2 tech-font drop-shadow-[2px_2px_0px_black]">EXPERIMENT SUCCESS!</h2>
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-black/50 p-4 rounded-xl border-2 border-[var(--rick-blue)]">
+                        <p class="text-xs text-[var(--portal-green)] uppercase">Moves</p>
+                        <p id="final-moves" class="text-3xl font-extrabold text-white tech-font">0</p>
+                    </div>
+                    <div class="bg-black/50 p-4 rounded-xl border-2 border-[var(--rick-blue)]">
+                        <p class="text-xs text-[var(--portal-green)] uppercase">Time</p>
+                        <p id="final-time" class="text-3xl font-extrabold text-white tech-font">00:00</p>
+                    </div>
+                </div>
+
+                <button onclick="restartGame()" class="w-full py-4 bg-[var(--toxic-green)] hover:bg-[var(--portal-green)] border-4 border-black text-black font-extrabold text-xl rounded-xl transition-all flex items-center justify-center gap-2 active:translate-y-1 shadow-[4px_4px_0px_black]">
+                    <i data-lucide="zap" class="w-6 h-6 fill-current"></i>
+                    AGAIN!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Paired Assets with both Image Path (for download) and Fallback SVG (for preview)
+        const pairedAssets = [
+            {
+                type: 'sheep',
+                original: {
+                    name: 'Dolly',
+                    img: 'DollyOrig.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M18 24C14 24 10 28 10 34C10 40 14 46 18 46C20 50 24 52 30 52C36 52 40 50 42 46C46 46 50 40 50 34C50 28 46 24 42 24C40 20 36 18 30 18C24 18 20 20 18 24Z" fill="#FFFFFF" stroke="black" stroke-width="3"/><circle cx="50" cy="34" r="10" fill="#FFD1DC" stroke="black" stroke-width="3"/><circle cx="47" cy="32" r="2" fill="black"/> <circle cx="53" cy="32" r="2" fill="black"/><path d="M48 38 Q50 40 52 38" stroke="black" stroke-width="2" fill="none"/><rect x="20" y="50" width="6" height="10" fill="#FFD1DC" stroke="black" stroke-width="3"/><rect x="34" y="50" width="6" height="10" fill="#FFD1DC" stroke="black" stroke-width="3"/></svg>`
+                },
+                clone: {
+                    name: 'Dolly Clone',
+                    img: 'DollyMute.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M14 28C10 32 8 40 12 48C16 56 24 58 32 56C40 58 48 54 52 46C56 38 54 30 48 26C42 18 34 16 26 18C18 16 16 22 14 28Z" fill="#C8E6C9" stroke="black" stroke-width="3"/><circle cx="48" cy="24" r="8" fill="#A5D6A7" stroke="black" stroke-width="3"/><circle cx="45" cy="22" r="1.5" fill="red"/> <circle cx="51" cy="22" r="2.5" fill="red"/><path d="M18 48 Q 14 56 22 58 Q 26 54 24 46" fill="#81C784" stroke="black" stroke-width="3"/><circle cx="20" cy="52" r="2" fill="white"/><path d="M30 56 L30 62 M36 56 L36 60 M42 54 L42 62" stroke="#39ff14" stroke-width="3" stroke-linecap="round"/></svg>`
+                }
+            },
+            {
+                type: 'coffee',
+                original: {
+                    name: 'Coffee Machine',
+                    img: 'CoffeeMachineOrig.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
+                            <rect x="16" y="12" width="32" height="40" rx="4" fill="#37474F" stroke="black" stroke-width="3"/>
+                            <rect x="20" y="24" width="24" height="20" rx="2" fill="#CFD8DC" stroke="black" stroke-width="2"/>
+                            <path d="M22 34 L 42 34 L 40 42 L 24 42 Z" fill="#795548" stroke="black" stroke-width="2"/>
+                            <rect x="20" y="8" width="24" height="4" fill="#263238" stroke="black" stroke-width="2"/>
+                            <circle cx="42" cy="18" r="2" fill="#39ff14"/>
+                          </svg>`
+                },
+                clone: {
+                    name: 'Angry Machine',
+                    img: 'CoffeeMachineMute.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
+                            <path d="M14 12 L 50 10 L 48 54 L 16 52 Z" fill="#546E7A" stroke="black" stroke-width="3"/>
+                            <!-- Teeth -->
+                            <path d="M20 28 L 24 38 L 28 28 M 36 28 L 40 38 L 44 28" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- Angry Eye -->
+                            <circle cx="32" cy="20" r="6" fill="red" stroke="black" stroke-width="2"/>
+                            <circle cx="32" cy="20" r="2" fill="black"/>
+                            <!-- Tentacles -->
+                            <path d="M10 40 Q 4 50, 12 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/>
+                            <path d="M54 40 Q 60 50, 52 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/>
+                          </svg>`
+                }
+            },
+            {
+                type: 'tool',
+                original: {
+                    name: 'Microscope',
+                    img: 'MicroscopeOrig.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
+                            <path d="M32 10 L 32 36" stroke="#90A4AE" stroke-width="6" stroke-linecap="round"/>
+                            <path d="M24 36 L 40 36" stroke="black" stroke-width="3"/> <!-- Stage -->
+                            <path d="M20 54 L 44 54 L 48 48 L 16 48 Z" fill="#546E7A" stroke="black" stroke-width="3"/> <!-- Base -->
+                            <circle cx="38" cy="46" r="4" fill="#37474F" stroke="black" stroke-width="2"/> <!-- Knob -->
+                            <path d="M28 10 L 36 10 L 40 18 L 24 18 Z" fill="#CFD8DC" stroke="black" stroke-width="2"/> <!-- Eyepiece -->
+                          </svg>`
+                },
+                clone: {
+                    name: 'Mutated Scope',
+                    img: 'MicroscopeMute.png',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg">
+                            <path d="M28 14 Q 20 24, 34 36" stroke="#EF9A9A" stroke-width="8" stroke-linecap="round"/>
+                            <circle cx="28" cy="14" r="5" fill="#C62828" stroke="black"/> <!-- Eye on stalk -->
+                            <circle cx="28" cy="14" r="2" fill="yellow"/>
+                            <path d="M22 54 L 46 54 L 48 50 L 18 46 Z" fill="#546E7A" stroke="black" stroke-width="3"/> <!-- Broken Base -->
+                            <path d="M40 30 Q 50 30, 48 40" stroke="#39ff14" stroke-width="4" fill="none"/> <!-- Slime -->
+                            <path d="M30 40 L 34 46 L 38 40" fill="white" stroke="black" stroke-width="1"/> <!-- Fang -->
+                          </svg>`
+                }
+            },
+             {
+                type: 'rat',
+                original: {
+                    name: 'Rat',
+                    img: '', /* No image provided, fallback to SVG */
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><ellipse cx="32" cy="38" rx="18" ry="12" fill="#BDBDBD" stroke="black" stroke-width="3"/><path d="M44 38 L 58 38 L 50 28 Z" fill="#BDBDBD" stroke="black" stroke-width="3"/><circle cx="52" cy="34" r="2" fill="red"/><path d="M14 38 C 10 30, 4 30, 4 46" stroke="#FFAB91" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="44" cy="26" r="4" fill="#FFAB91" stroke="black" stroke-width="3"/></svg>`
+                },
+                clone: {
+                    name: 'Brain Rat',
+                    img: '',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><ellipse cx="32" cy="50" rx="12" ry="8" fill="#7E57C2" stroke="black" stroke-width="3"/><path d="M16 36 C 16 10, 48 10, 48 36 C 48 42, 16 42, 16 36 Z" fill="#FF8A80" stroke="black" stroke-width="3"/><path d="M22 24 Q 32 16 42 24 M 26 32 Q 32 28 38 32" stroke="#D32F2F" stroke-width="2" fill="none"/><circle cx="28" cy="40" r="3" fill="#39ff14" stroke="black" stroke-width="1"/><circle cx="36" cy="40" r="3" fill="#39ff14" stroke="black" stroke-width="1"/></svg>`
+                }
+            },
+            {
+                type: 'scientist',
+                original: {
+                    name: 'Dr. Sanchez',
+                    img: '',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M20 20 C 20 10, 44 10, 44 20 L 44 26 L 20 26 Z" fill="#87CEEB" stroke="black" stroke-width="3"/><rect x="24" y="26" width="16" height="14" fill="#FFE0B2" stroke="black" stroke-width="3"/><circle cx="28" cy="32" r="2" fill="black"/> <circle cx="36" cy="32" r="2" fill="black"/><line x1="29" y1="36" x2="35" y2="36" stroke="black" stroke-width="2"/><path d="M16 40 L 48 40 L 52 62 L 12 62 Z" fill="white" stroke="black" stroke-width="3"/></svg>`
+                },
+                clone: {
+                    name: 'Cronenberg',
+                    img: '',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M10 30 Q 20 10 40 20 Q 60 15 55 40 Q 60 60 35 55 Q 10 60 10 30 Z" fill="#EF9A9A" stroke="black" stroke-width="3"/><path d="M30 40 L 45 40 L 42 50 L 33 50 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="25" cy="25" r="5" fill="yellow" stroke="black" stroke-width="2"/><circle cx="25" cy="25" r="2" fill="black"/><circle cx="45" cy="35" r="3" fill="yellow" stroke="black" stroke-width="2"/><circle cx="45" cy="35" r="1" fill="black"/><path d="M20 45 L 30 50 L 25 55" stroke="black" stroke-width="3" fill="none"/></svg>`
+                }
+            },
+            {
+                type: 'flask',
+                original: {
+                    name: 'Flask',
+                    img: '',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="28" y="8" width="8" height="16" fill="#B2DFDB" stroke="black" stroke-width="3"/><path d="M32 24 L 16 56 C 12 62, 52 62, 48 56 L 32 24 Z" fill="#B2DFDB" stroke="black" stroke-width="3"/><path d="M24 40 L 40 40 L 46 54 C 48 58, 16 58, 18 54 Z" fill="#009688"/><circle cx="28" cy="48" r="2" fill="white" fill-opacity="0.5"/></svg>`
+                },
+                clone: {
+                    name: 'Slime',
+                    img: '',
+                    svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="26" y="10" width="12" height="10" fill="#B2DFDB" stroke="black" stroke-width="3"/><path d="M24 8 L 40 12" stroke="black" stroke-width="2"/><path d="M20 22 Q 10 30, 14 44 Q 18 58, 32 56 Q 46 58, 50 44 Q 54 30, 44 22" fill="#39ff14" stroke="black" stroke-width="3"/><circle cx="26" cy="36" r="4" fill="yellow" stroke="black"/><circle cx="38" cy="34" r="5" fill="yellow" stroke="black"/><path d="M28 48 Q 32 52, 36 48" stroke="black" stroke-width="2" fill="none"/></svg>`
+                }
+            }
+        ];
+
+        // Game State
+        let deck = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let timer = 0;
+        let timerInterval = null;
+        let gameActive = false;
+        let lockBoard = false;
+
+        // DOM Elements
+        const gridElement = document.getElementById('game-grid');
+        const movesElement = document.getElementById('move-count');
+        const timerElement = document.getElementById('timer');
+        const modalElement = document.getElementById('victory-modal');
+        const modalContent = document.getElementById('modal-content');
+        const finalMovesElement = document.getElementById('final-moves');
+        const finalTimeElement = document.getElementById('final-time');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initGame();
+        });
+
+        function initGame() {
+            deck = [];
+            pairedAssets.forEach((pair, index) => {
+                deck.push({ id: `orig-${index}`, type: pair.type, isClone: false, data: pair.original });
+                deck.push({ id: `clone-${index}`, type: pair.type, isClone: true, data: pair.clone });
+            });
+            shuffle(deck);
+
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            timer = 0;
+            gameActive = true;
+            lockBoard = false;
+
+            movesElement.textContent = '0';
+            timerElement.textContent = '00:00';
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            renderGrid();
+            modalElement.classList.add('hidden');
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function renderGrid() {
+            gridElement.innerHTML = '';
+            
+            deck.forEach((cardData, index) => {
+                const cardElement = document.createElement('div');
+                const randomRot = Math.random() * 4 - 2; 
+                cardElement.className = 'card aspect-square relative h-24 md:h-32 w-full';
+                cardElement.style.transform = `rotate(${randomRot}deg)`;
+                cardElement.dataset.type = cardData.type;
+                cardElement.dataset.id = cardData.id;
+
+                // Smart Layering: SVG is always there. Image is on top. If Image fails, it hides.
+                let contentHtml = `
+                    <div class="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                        <div class="absolute inset-0 z-0">
+                            ${cardData.data.svg}
+                        </div>
+                        ${cardData.data.img ? `
+                        <img 
+                            src="${cardData.data.img}" 
+                            class="absolute inset-0 w-full h-full object-contain z-10 transition-opacity duration-200"
+                            onerror="this.style.opacity='0'"
+                            alt="${cardData.data.name}"
+                        />` : ''}
+                    </div>
+                `;
+
+                cardElement.innerHTML = `
+                    <div class="card-inner w-full h-full transition-all duration-500">
+                        <div class="card-face card-front">
+                            <i data-lucide="atom" class="w-12 h-12 text-black animate-spin-slow opacity-50"></i>
+                        </div>
+                        <div class="card-face card-back flex flex-col items-center justify-center p-1">
+                            <div class="matched-slime"></div>
+                            ${contentHtml}
+                            <span class="text-[10px] md:text-xs font-extrabold text-black uppercase tracking-tighter leading-tight mt-1 relative z-20 bg-white/50 px-1 rounded">${cardData.data.name}</span>
+                        </div>
+                    </div>
+                `;
+
+                cardElement.addEventListener('click', () => handleCardClick(cardElement));
+                gridElement.appendChild(cardElement);
+            });
+            
+            lucide.createIcons();
+        }
+
+        function handleCardClick(cardElement) {
+            if (lockBoard || cardElement.classList.contains('flipped') || cardElement.classList.contains('matched') || !gameActive) return;
+
+            cardElement.classList.add('flipped');
+            flippedCards.push(cardElement);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesElement.textContent = moves;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            lockBoard = true;
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.type === card2.dataset.type;
+
+            if (isMatch) {
+                disableCards();
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            const [card1, card2] = flippedCards;
+            setTimeout(() => {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                flippedCards = [];
+                lockBoard = false;
+                if (matchedPairs === pairedAssets.length) endGame();
+            }, 500);
+        }
+
+        function unflipCards() {
+            setTimeout(() => {
+                flippedCards.forEach(card => card.classList.remove('flipped'));
+                flippedCards = [];
+                lockBoard = false;
+            }, 1000);
+        }
+
+        function updateTimer() {
+            if (!gameActive) return;
+            timer++;
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            timerElement.textContent = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            modalElement.classList.remove('hidden');
+            finalMovesElement.textContent = moves;
+            finalTimeElement.textContent = timerElement.textContent;
+            setTimeout(() => {
+                modalContent.classList.remove('scale-90', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function restartGame() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                modalElement.classList.add('hidden');
+                initGame();
+            }, 300);
+        }
+    </script>
+</body>
+</html>
