@@ -28,14 +28,44 @@
                 linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
                 url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM32 63c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm57-13c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2339ff14' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
             color: #e2e8f0;
+            overflow: hidden; /* Hide scrollbars during video */
         }
 
-        h1, .tech-font {
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 2px;
+        h1, .tech-font { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+
+        /* INTRO VIDEO LAYER */
+        #intro-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: black;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 1s ease-out;
         }
 
-        /* Card Flip Animation Styles */
+        #intro-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensures video isn't cut off */
+            display: none; /* Hidden until start clicked */
+        }
+
+        #start-screen {
+            text-align: center;
+            z-index: 101;
+        }
+
+        /* HIDE GAME CONTENT INITIALLY */
+        #game-container {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        /* --- GAME STYLES --- */
         .perspective-1000 { perspective: 1000px; }
         .card-inner {
             position: relative;
@@ -48,7 +78,6 @@
         }
         .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
 
-        /* Front and Back common styles */
         .card-face {
             position: absolute;
             width: 100%;
@@ -64,7 +93,6 @@
             overflow: hidden;
         }
 
-        /* Card Back (Face down) */
         .card-front {
             background: rgb(34,193,195);
             background: radial-gradient(circle, rgba(57,255,20,1) 0%, rgba(0,181,204,1) 100%);
@@ -76,7 +104,6 @@
             100% { box-shadow: inset 0 0 50px var(--portal-green); }
         }
 
-        /* Card Front (Face up - revealed) */
         .card-back {
             background-color: #f0fce7;
             transform: rotateY(180deg);
@@ -89,113 +116,98 @@
             box-shadow: 0 0 20px var(--toxic-green);
         }
 
-        /* Slime effect on matched cards */
         .matched-slime {
             position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            pointer-events: none;
-            opacity: 0;
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
+            pointer-events: none; opacity: 0;
             transition: opacity 0.3s;
             background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20Z' fill='%2339ff14' fill-opacity='0.5'/%3E%3C/svg%3E");
             background-size: cover;
         }
-
-        .card.matched .matched-slime {
-            opacity: 1;
-            animation: slime-drip 2s infinite;
-        }
+        .card.matched .matched-slime { opacity: 1; animation: slime-drip 2s infinite; }
         
         .cartoon-svg {
-            width: 100%;
-            height: 100%;
-            stroke: black;
-            stroke-width: 2.5px;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+            width: 100%; height: 100%;
+            stroke: black; stroke-width: 2.5px; stroke-linecap: round; stroke-linejoin: round;
             filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));
         }
 
-        /* --- NEW MERGE ANIMATIONS --- */
-        
-        /* The container moves */
-        .card.merging {
-            z-index: 50;
-            animation: merge-fly 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        /* The inner content pulses/glows */
-        .card.merging .card-inner {
-            animation: merge-glow 1.2s ease-in-out forwards;
-        }
+        .card.merging { z-index: 50; animation: merge-fly 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        .card.merging .card-inner { animation: merge-glow 1.2s ease-in-out forwards; }
 
         @keyframes merge-fly {
             0% { transform: translate(0, 0) rotate(var(--rot-start)); }
-            40% { transform: translate(var(--tx), var(--ty)) scale(1.1) rotate(0deg); } /* Meet in middle */
-            60% { transform: translate(var(--tx), var(--ty)) scale(1.1) rotate(0deg); } /* Hover */
-            100% { transform: translate(0, 0) rotate(0deg); } /* Return */
+            40% { transform: translate(var(--tx), var(--ty)) scale(1.1) rotate(0deg); }
+            60% { transform: translate(var(--tx), var(--ty)) scale(1.1) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
         }
 
         @keyframes merge-glow {
             0% { box-shadow: none; border-color: var(--rick-blue); }
-            40% { 
-                box-shadow: 0 0 40px var(--toxic-green), 0 0 80px var(--portal-green); 
-                border-color: white;
-                filter: brightness(1.5);
-            }
-            60% { 
-                box-shadow: 0 0 60px var(--toxic-green), 0 0 100px var(--portal-green); 
-                border-color: white;
-                filter: brightness(1.2);
-            }
+            40% { box-shadow: 0 0 40px var(--toxic-green), 0 0 80px var(--portal-green); border-color: white; filter: brightness(1.5); }
+            60% { box-shadow: 0 0 60px var(--toxic-green), 0 0 100px var(--portal-green); border-color: white; filter: brightness(1.2); }
             100% { box-shadow: none; border-color: var(--toxic-green); }
         }
-
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start pt-8 p-4">
 
-    <!-- Header -->
-    <header class="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 z-10 relative">
-        <div class="text-center md:text-left mb-4 md:mb-0 bg-black/40 p-4 rounded-2xl border-4 border-black -rotate-2">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--toxic-green)] to-[var(--rick-blue)] drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+    <!-- INTRO LAYER -->
+    <div id="intro-layer">
+        <div id="start-screen">
+            <h1 class="text-4xl md:text-6xl text-[var(--toxic-green)] mb-8 tech-font font-extrabold drop-shadow-[0_0_20px_rgba(57,255,20,0.5)]">
                 PROJECT DOLLY
             </h1>
-            <p class="text-sm text-[var(--portal-green)] mt-1 font-bold">RESTORATION PROTOCOL</p>
+            <button id="start-btn" class="px-8 py-4 bg-[var(--rick-blue)] hover:bg-[var(--toxic-green)] border-4 border-black text-black font-extrabold text-2xl rounded-xl transition-all hover:scale-110 active:scale-95 shadow-[0_0_30px_rgba(0,181,204,0.6)] flex items-center gap-3 mx-auto">
+                <i data-lucide="play" class="w-8 h-8 fill-black"></i>
+                INITIATE PROTOCOL
+            </button>
         </div>
-        
-        <div class="flex gap-4 bg-black/60 p-4 rounded-xl border-4 border-[var(--purple-haze)] backdrop-blur-md rotate-1">
-            <div class="text-center">
-                <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Moves</p>
-                <p id="move-count" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">0</p>
-            </div>
-            <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
-            <div class="text-center">
-                <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Time</p>
-                <p id="timer" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">00:00</p>
-            </div>
-            <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
-            <div class="text-center flex items-center">
-                <button onclick="restartGame()" class="p-2 bg-[var(--rick-blue)] hover:bg-[var(--toxic-green)] border-2 border-black rounded-full transition-all group active:translate-y-1" title="Restart">
-                    <i data-lucide="skull" class="w-6 h-6 text-black group-hover:animate-spin"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+        <!-- Video is PAUSED initially and hidden via CSS on #intro-video -->
+        <video id="intro-video" src="intro.mp4" playsinline style="display: none;"></video>
+    </div>
 
-    <!-- Game Grid -->
-    <main class="w-full max-w-4xl z-10 relative mb-8">
-        <div class="bg-yellow-300/90 border-4 border-black p-2 text-black text-center font-bold mb-4 rounded-lg -rotate-1 mx-auto max-w-md shadow-[4px_4px_0px_rgba(0,0,0,1)] text-sm">
-            MATCH 2 CLONES TO MERGE & RESTORE ORIGINAL!
-        </div>
+    <!-- WRAPPER FOR GAME CONTENT TO HIDE IT INITIALLY -->
+    <div id="game-container">
+        <!-- Header -->
+        <header class="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 z-10 relative">
+            <div class="text-center md:text-left mb-4 md:mb-0 bg-black/40 p-4 rounded-2xl border-4 border-black -rotate-2">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--toxic-green)] to-[var(--rick-blue)] drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                    PROJECT DOLLY
+                </h1>
+                <p class="text-sm text-[var(--portal-green)] mt-1 font-bold">RESTORATION PROTOCOL</p>
+            </div>
+            
+            <div class="flex gap-4 bg-black/60 p-4 rounded-xl border-4 border-[var(--purple-haze)] backdrop-blur-md rotate-1">
+                <div class="text-center">
+                    <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Moves</p>
+                    <p id="move-count" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">0</p>
+                </div>
+                <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
+                <div class="text-center">
+                    <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Time</p>
+                    <p id="timer" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">00:00</p>
+                </div>
+                <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
+                <div class="text-center flex items-center">
+                    <button onclick="restartGame()" class="p-2 bg-[var(--rick-blue)] hover:bg-[var(--toxic-green)] border-2 border-black rounded-full transition-all group active:translate-y-1" title="Restart">
+                        <i data-lucide="skull" class="w-6 h-6 text-black group-hover:animate-spin"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
 
-        <!-- Adjusted Grid for 12 Cards (3x4 or 4x3) -->
-        <div id="game-grid" class="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-5 w-full mx-auto perspective-1000 p-4 bg-black/30 rounded-3xl border-4 border-[var(--toxic-green)]">
-            <!-- Cards will be injected here by JS -->
-        </div>
-    </main>
+        <!-- Game Grid -->
+        <main class="w-full max-w-4xl z-10 relative mb-8">
+            <div class="bg-yellow-300/90 border-4 border-black p-2 text-black text-center font-bold mb-4 rounded-lg -rotate-1 mx-auto max-w-md shadow-[4px_4px_0px_rgba(0,0,0,1)] text-sm">
+                MATCH 2 CLONES TO MERGE & RESTORE ORIGINAL!
+            </div>
+
+            <div id="game-grid" class="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-5 w-full mx-auto perspective-1000 p-4 bg-black/30 rounded-3xl border-4 border-[var(--toxic-green)]">
+                <!-- Cards will be injected here by JS -->
+            </div>
+        </main>
+    </div>
 
     <!-- Victory Modal -->
     <div id="victory-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
@@ -225,7 +237,7 @@
     </div>
 
     <script>
-        // Updated Assets List based on User Uploads
+        // --- ASSETS ---
         const pairedAssets = [
             {
                 type: 'dolly',
@@ -326,11 +338,55 @@
         const modalContent = document.getElementById('modal-content');
         const finalMovesElement = document.getElementById('final-moves');
         const finalTimeElement = document.getElementById('final-time');
+        const introLayer = document.getElementById('intro-layer');
+        const startBtn = document.getElementById('start-btn');
+        const startScreen = document.getElementById('start-screen');
+        const introVideo = document.getElementById('intro-video');
+        const gameContainer = document.getElementById('game-container');
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            initGame();
+            
+            // INTRO LOGIC
+            startBtn.addEventListener('click', () => {
+                startScreen.style.display = 'none';
+                introVideo.style.display = 'block';
+                
+                // Only when clicked do we attempt to play
+                introVideo.play().then(() => {
+                    // Video playing successfully
+                }).catch(e => {
+                    // If video fails to play (codec issue etc), skip to game
+                    console.error("Video play error", e);
+                    startGameSequence();
+                });
+            });
+
+            introVideo.addEventListener('ended', () => {
+                startGameSequence();
+            });
+
+            introVideo.addEventListener('error', (e) => {
+                console.error("Video source error", e);
+                startGameSequence();
+            });
         });
+
+        function startGameSequence() {
+            // Fade out video layer
+            introLayer.style.opacity = '0';
+            setTimeout(() => {
+                introLayer.style.display = 'none';
+                // Show game container
+                gameContainer.style.display = 'block';
+                // Trigger reflow
+                void gameContainer.offsetWidth;
+                // Fade in
+                gameContainer.style.opacity = '1';
+                
+                initGame(); // Start Game
+            }, 1000);
+        }
 
         function initGame() {
             deck = [];
@@ -399,11 +455,8 @@
                 const cardElement = document.createElement('div');
                 const randomRot = Math.random() * 4 - 2; 
                 cardElement.className = 'card aspect-square relative h-24 md:h-32 w-full';
-                
-                // Store rotation as variable for the animation to use as starting point
                 cardElement.style.setProperty('--rot-start', `${randomRot}deg`);
                 cardElement.style.transform = `rotate(${randomRot}deg)`;
-                
                 cardElement.dataset.type = cardData.type;
                 cardElement.dataset.id = cardData.id;
 
@@ -438,14 +491,12 @@
             if (flippedCards.length === 2) {
                 moves++;
                 movesElement.textContent = moves;
-                lockBoard = true; // Immediately lock board to prevent extra clicks
-                // Wait 800ms for the flip animation to complete before checking/merging
+                lockBoard = true; 
                 setTimeout(checkForMatch, 800);
             }
         }
 
         function checkForMatch() {
-            // lockBoard is already true
             const [card1, card2] = flippedCards;
             const isMatch = card1.dataset.type === card2.dataset.type;
 
@@ -560,7 +611,7 @@
 
         function restartGame() {
             modalContent.classList.remove('scale-100', 'opacity-100');
-            modalContent.classList.add('scale-90', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-0');
             setTimeout(() => {
                 modalElement.classList.add('hidden');
                 initGame();
