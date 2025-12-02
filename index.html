@@ -36,7 +36,6 @@
                 linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
                 url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM32 63c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm57-13c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2339ff14' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
             color: #e2e8f0;
-            /* Fix for jitter: Force hardware acceleration on body background/layout */
             backface-visibility: hidden; 
             transform: translateZ(0);
         }
@@ -73,10 +72,9 @@
             display: none;
             opacity: 0;
             transition: opacity 1s ease-in;
-            /* Fix for jitter: ensure container doesn't shift */
             width: 100%;
             height: 100%;
-            overflow-y: auto; /* Allow scrolling within the container if needed */
+            overflow-y: auto; 
         }
 
         /* --- GAME STYLES --- */
@@ -89,7 +87,6 @@
             transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
             transform-style: preserve-3d;
             cursor: pointer;
-            /* Fix for jitter during 3D transforms */
             will-change: transform; 
         }
         .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
@@ -100,32 +97,37 @@
             height: 100%;
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-            border: 3px solid black; 
+            /* Removed border and adjusted shadow to just be depth */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            background-color: transparent; /* Fix for white border */
             overflow: hidden;
         }
 
         .card-front {
-            background: rgb(34,193,195);
-            background: radial-gradient(circle, rgba(57,255,20,1) 0%, rgba(0,181,204,1) 100%);
-            /* Optimized animation to reduce repaints */
+            background-image: url('CardBack.png');
+            background-size: 100% 100%; /* Force exact fit */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent; /* Fix for white border */
+            
             animation: portal-pulse 2s infinite alternate;
             will-change: box-shadow;
         }
 
         @keyframes portal-pulse {
-            0% { box-shadow: inset 0 0 20px var(--toxic-green); }
-            100% { box-shadow: inset 0 0 50px var(--portal-green); }
+            0% { box-shadow: inset 0 0 5px var(--toxic-green); }
+            100% { box-shadow: inset 0 0 15px var(--portal-green); }
         }
 
         .card-back {
             background-color: #f0fce7;
             transform: rotateY(180deg);
-            border-color: var(--rick-blue);
+            /* Keep border here only if you want it on the face side, remove if you want full bleed image there too */
+            border: 2px solid var(--rick-blue);
         }
 
         .card.matched .card-back {
@@ -166,6 +168,11 @@
             60% { box-shadow: 0 0 60px var(--toxic-green), 0 0 100px var(--portal-green); border-color: white; filter: brightness(1.2); }
             100% { box-shadow: none; border-color: var(--toxic-green); }
         }
+        
+        /* EXACT CARD RATIO 153x230 */
+        .card-custom-ratio {
+            aspect-ratio: 153 / 230;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-start pt-8 p-4">
@@ -187,40 +194,40 @@
     <!-- WRAPPER FOR GAME CONTENT -->
     <div id="game-container">
         <!-- Header -->
-        <header class="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 z-10 relative mx-auto">
-            <div class="text-center md:text-left mb-4 md:mb-0 bg-black/40 p-4 rounded-2xl border-4 border-black -rotate-2">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--toxic-green)] to-[var(--rick-blue)] drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+        <header class="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-4 z-10 relative mx-auto">
+            <div class="text-center md:text-left mb-4 md:mb-0 bg-black/40 p-3 rounded-2xl border-4 border-black -rotate-2">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--toxic-green)] to-[var(--rick-blue)] drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                     PROJECT DOLLY
                 </h1>
-                <p class="text-sm text-[var(--portal-green)] mt-1 font-bold">RESTORATION PROTOCOL</p>
+                <p class="text-xs text-[var(--portal-green)] mt-1 font-bold">RESTORATION PROTOCOL</p>
             </div>
             
-            <div class="flex gap-4 bg-black/60 p-4 rounded-xl border-4 border-[var(--purple-haze)] backdrop-blur-md rotate-1">
+            <div class="flex gap-4 bg-black/60 p-3 rounded-xl border-4 border-[var(--purple-haze)] backdrop-blur-md rotate-1">
                 <div class="text-center">
-                    <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Moves</p>
-                    <p id="move-count" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">0</p>
+                    <p class="text-[9px] text-[var(--rick-blue)] uppercase font-bold">Moves</p>
+                    <p id="move-count" class="text-xl font-extrabold text-[var(--toxic-green)] tech-font">0</p>
                 </div>
                 <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
                 <div class="text-center">
-                    <p class="text-[10px] text-[var(--rick-blue)] uppercase font-bold">Time</p>
-                    <p id="timer" class="text-2xl font-extrabold text-[var(--toxic-green)] tech-font">00:00</p>
+                    <p class="text-[9px] text-[var(--rick-blue)] uppercase font-bold">Time</p>
+                    <p id="timer" class="text-xl font-extrabold text-[var(--toxic-green)] tech-font">00:00</p>
                 </div>
                 <div class="w-1 bg-[var(--purple-haze)] rounded-full"></div>
                 <div class="text-center flex items-center">
                     <button onclick="restartGame()" class="p-2 bg-[var(--rick-blue)] hover:bg-[var(--toxic-green)] border-2 border-black rounded-full transition-all group active:translate-y-1" title="Restart">
-                        <i data-lucide="skull" class="w-6 h-6 text-black group-hover:animate-spin"></i>
+                        <i data-lucide="skull" class="w-5 h-5 text-black group-hover:animate-spin"></i>
                     </button>
                 </div>
             </div>
         </header>
 
         <!-- Game Grid -->
-        <main class="w-full max-w-4xl z-10 relative mb-8 mx-auto">
-            <div class="bg-yellow-300/90 border-4 border-black p-2 text-black text-center font-bold mb-4 rounded-lg -rotate-1 mx-auto max-w-md shadow-[4px_4px_0px_rgba(0,0,0,1)] text-sm">
-                MATCH 2 CLONES TO MERGE & RESTORE ORIGINAL!
+        <main class="w-full max-w-5xl z-10 relative mb-4 mx-auto px-2">
+            <div class="bg-yellow-300/90 border-4 border-black p-2 text-black text-center font-bold mb-4 rounded-lg -rotate-1 mx-auto max-w-md shadow-[4px_4px_0px_rgba(0,0,0,1)] text-xs md:text-sm">
+                MATCH ORIGINAL WITH CLONE TO RESTORE!
             </div>
 
-            <div id="game-grid" class="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-5 w-full mx-auto perspective-1000 p-4 bg-black/30 rounded-3xl border-4 border-[var(--toxic-green)]">
+            <div id="game-grid" class="grid grid-cols-4 gap-2 md:gap-4 w-full mx-auto perspective-1000 p-3 bg-black/30 rounded-3xl border-4 border-[var(--toxic-green)]">
                 <!-- Cards will be injected here by JS -->
             </div>
         </main>
@@ -260,12 +267,12 @@
                 type: 'dolly',
                 original: {
                     name: 'Dolly',
-                    img: 'DollyOrig.png',
+                    img: 'CardSheepNormal.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M18 24C14 24 10 28 10 34C10 40 14 46 18 46C20 50 24 52 30 52C36 52 40 50 42 46C46 46 50 40 50 34C50 28 46 24 42 24C40 20 36 18 30 18C24 18 20 20 18 24Z" fill="#FFFFFF" stroke="black" stroke-width="3"/><circle cx="50" cy="34" r="10" fill="#FFD1DC" stroke="black" stroke-width="3"/><circle cx="47" cy="32" r="2" fill="black"/> <circle cx="53" cy="32" r="2" fill="black"/><path d="M48 38 Q50 40 52 38" stroke="black" stroke-width="2" fill="none"/><rect x="20" y="50" width="6" height="10" fill="#FFD1DC" stroke="black" stroke-width="3"/><rect x="34" y="50" width="6" height="10" fill="#FFD1DC" stroke="black" stroke-width="3"/></svg>`
                 },
                 clone: {
                     name: 'Dolly Clone',
-                    img: 'DollyMute.png',
+                    img: 'CardSheepMonster.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M14 28C10 32 8 40 12 48C16 56 24 58 32 56C40 58 48 54 52 46C56 38 54 30 48 26C42 18 34 16 26 18C18 16 16 22 14 28Z" fill="#C8E6C9" stroke="black" stroke-width="3"/><circle cx="48" cy="24" r="8" fill="#A5D6A7" stroke="black" stroke-width="3"/><circle cx="45" cy="22" r="1.5" fill="red"/> <circle cx="51" cy="22" r="2.5" fill="red"/><path d="M18 48 Q 14 56 22 58 Q 26 54 24 46" fill="#81C784" stroke="black" stroke-width="3"/><circle cx="20" cy="52" r="2" fill="white"/><path d="M30 56 L30 62 M36 56 L36 60 M42 54 L42 62" stroke="#39ff14" stroke-width="3" stroke-linecap="round"/></svg>`
                 }
             },
@@ -273,12 +280,12 @@
                 type: 'coffee',
                 original: {
                     name: 'Coffee Machine',
-                    img: 'CoffeeMachineOrig.png',
+                    img: 'CardCoffeeNormal.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="16" y="12" width="32" height="40" rx="4" fill="#37474F" stroke="black" stroke-width="3"/><rect x="20" y="24" width="24" height="20" rx="2" fill="#CFD8DC" stroke="black" stroke-width="2"/><path d="M22 34 L 42 34 L 40 42 L 24 42 Z" fill="#795548" stroke="black" stroke-width="2"/><rect x="20" y="8" width="24" height="4" fill="#263238" stroke="black" stroke-width="2"/><circle cx="42" cy="18" r="2" fill="#39ff14"/></svg>`
                 },
                 clone: {
                     name: 'Angry Machine',
-                    img: 'CoffeeMachineMute.png',
+                    img: 'CardCoffeeMonster.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M14 12 L 50 10 L 48 54 L 16 52 Z" fill="#546E7A" stroke="black" stroke-width="3"/><path d="M20 28 L 24 38 L 28 28 M 36 28 L 40 38 L 44 28" fill="white" stroke="black" stroke-width="2"/><circle cx="32" cy="20" r="6" fill="red" stroke="black" stroke-width="2"/><circle cx="32" cy="20" r="2" fill="black"/><path d="M10 40 Q 4 50, 12 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M54 40 Q 60 50, 52 58" stroke="#E91E63" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`
                 }
             },
@@ -286,12 +293,12 @@
                 type: 'monitor',
                 original: {
                     name: 'Monitor',
-                    img: 'MonitorOrig.png',
+                    img: 'CardScreenNormal.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="8" y="12" width="48" height="32" rx="2" fill="#B0BEC5" stroke="black" stroke-width="3"/><rect x="12" y="16" width="40" height="24" fill="#E0F7FA" stroke="black" stroke-width="2"/><path d="M24 44 L 20 54 L 44 54 L 40 44" fill="#78909C" stroke="black" stroke-width="3"/></svg>`
                 },
                 clone: {
                     name: 'Glitch Screen',
-                    img: 'MonitorMute.png',
+                    img: 'CardScreenMonster.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M6 10 L 58 14 L 54 48 L 10 46 Z" fill="#546E7A" stroke="black" stroke-width="3"/><rect x="14" y="18" width="36" height="20" fill="#000" stroke="black"/><path d="M18 22 L 46 34" stroke="#39ff14" stroke-width="2"/><path d="M20 50 L 16 58 L 48 56 L 44 48" fill="#37474F" stroke="black" stroke-width="3"/></svg>`
                 }
             },
@@ -299,12 +306,12 @@
                 type: 'robot',
                 original: {
                     name: 'Robot',
-                    img: 'RobotOrig.png',
+                    img: 'CardRobotNormal.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><rect x="20" y="16" width="24" height="20" rx="4" fill="#B39DDB" stroke="black" stroke-width="3"/><rect x="24" y="36" width="16" height="16" fill="#9575CD" stroke="black" stroke-width="3"/><circle cx="26" cy="24" r="2" fill="white"/><circle cx="38" cy="24" r="2" fill="white"/><line x1="28" y1="30" x2="36" y2="30" stroke="black" stroke-width="2"/></svg>`
                 },
                 clone: {
                     name: 'Rogue Bot',
-                    img: 'RobotMute.png',
+                    img: 'CardRobotMonster.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M18 14 L 46 18 L 44 40 L 22 38 Z" fill="#F48FB1" stroke="black" stroke-width="3"/><circle cx="28" cy="24" r="4" fill="red" stroke="black"/><circle cx="40" cy="22" r="2" fill="black"/><path d="M26 32 L 30 36 L 38 30" stroke="black" stroke-width="2" fill="none"/><path d="M44 26 L 52 20 M 20 24 L 12 18" stroke="#39ff14" stroke-width="3"/></svg>`
                 }
             },
@@ -326,12 +333,12 @@
                 type: 'microscope',
                 original: {
                     name: 'Microscope',
-                    img: 'MicroscopeOrig.png',
+                    img: 'CardMicroNormal.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M32 10 L 32 36" stroke="#90A4AE" stroke-width="6" stroke-linecap="round"/><path d="M24 36 L 40 36" stroke="black" stroke-width="3"/><path d="M20 54 L 44 54 L 48 48 L 16 48 Z" fill="#546E7A" stroke="black" stroke-width="3"/><circle cx="38" cy="46" r="4" fill="#37474F" stroke="black" stroke-width="2"/><path d="M28 10 L 36 10 L 40 18 L 24 18 Z" fill="#CFD8DC" stroke="black" stroke-width="2"/></svg>`
                 },
                 clone: {
                     name: 'Mutated Scope',
-                    img: 'MicroscopeMute.png',
+                    img: 'CardMicroMonster.png',
                     svg: `<svg viewBox="0 0 64 64" fill="none" class="cartoon-svg"><path d="M28 14 Q 20 24, 34 36" stroke="#EF9A9A" stroke-width="8" stroke-linecap="round"/><circle cx="28" cy="14" r="5" fill="#C62828" stroke="black"/><circle cx="28" cy="14" r="2" fill="yellow"/><path d="M22 54 L 46 54 L 48 50 L 18 46 Z" fill="#546E7A" stroke="black" stroke-width="3"/><path d="M40 30 Q 50 30, 48 40" stroke="#39ff14" stroke-width="4" fill="none"/><path d="M30 40 L 34 46 L 38 40" fill="white" stroke="black" stroke-width="1"/></svg>`
                 }
             }
@@ -408,19 +415,24 @@
         function initGame() {
             deck = [];
             pairedAssets.forEach((pair, index) => {
+                // Modified: Now creates pairs of (Original + Clone)
+                
+                // Card 1: Original
                 deck.push({ 
-                    id: `clone-1-${index}`, 
+                    id: `orig-${index}`, 
                     type: pair.type, 
-                    isClone: true, 
-                    data: pair.clone, 
-                    originalData: pair.original 
+                    isClone: false, 
+                    data: pair.original, // Show Original Image
+                    originalData: pair.original // Final State is Original
                 });
+                
+                // Card 2: Clone
                 deck.push({ 
-                    id: `clone-2-${index}`, 
+                    id: `clone-${index}`, 
                     type: pair.type, 
                     isClone: true, 
-                    data: pair.clone, 
-                    originalData: pair.original 
+                    data: pair.clone, // Show Clone Image
+                    originalData: pair.original // Final State is Original (transform)
                 });
             });
             shuffle(deck);
@@ -450,14 +462,14 @@
         
         function generateCardContent(data) {
             return `
-                <div class="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center asset-content">
-                    <div class="absolute inset-0 z-0">
+                <div class="relative w-full h-full flex items-center justify-center asset-content overflow-hidden">
+                    <div class="absolute inset-0 z-0 opacity-20">
                         ${data.svg}
                     </div>
                     ${data.img ? `
                     <img 
                         src="${data.img}" 
-                        class="absolute inset-0 w-full h-full object-contain z-10 transition-opacity duration-200"
+                        class="relative z-10 w-full h-full object-contain p-0 transition-opacity duration-200" 
                         onerror="this.style.opacity='0'"
                         alt="${data.name}"
                     />` : ''}
@@ -471,7 +483,9 @@
             deck.forEach((cardData, index) => {
                 const cardElement = document.createElement('div');
                 const randomRot = Math.random() * 4 - 2; 
-                cardElement.className = 'card aspect-square relative h-24 md:h-32 w-full';
+                // Using new custom aspect ratio class and removed fixed h-32/h-40
+                // We rely on grid layout + aspect ratio to size them
+                cardElement.className = 'card card-custom-ratio relative w-full';
                 cardElement.style.setProperty('--rot-start', `${randomRot}deg`);
                 cardElement.style.transform = `rotate(${randomRot}deg)`;
                 cardElement.dataset.type = cardData.type;
@@ -481,13 +495,13 @@
 
                 cardElement.innerHTML = `
                     <div class="card-inner w-full h-full transition-all duration-500">
-                        <div class="card-face card-front">
-                            <i data-lucide="atom" class="w-12 h-12 text-black animate-spin-slow opacity-50"></i>
-                        </div>
-                        <div class="card-face card-back flex flex-col items-center justify-center p-1">
+                        <!-- FRONT OF CARD (FACE DOWN) WITH CUSTOM IMAGE -->
+                        <div class="card-face card-front"></div>
+                        
+                        <!-- BACK OF CARD (REVEALED) -->
+                        <div class="card-face card-back flex flex-col items-center justify-center p-0">
                             <div class="matched-slime"></div>
                             ${contentHtml}
-                            <span class="text-[10px] md:text-xs font-extrabold text-black uppercase tracking-tighter leading-tight mt-1 relative z-20 bg-white/50 px-1 rounded card-name">${cardData.data.name}</span>
                         </div>
                     </div>
                 `;
@@ -563,14 +577,13 @@
                 
                 // Helper to update DOM
                 const updateCardDOM = (cardEl, originalData) => {
-                    const nameEl = cardEl.querySelector('.card-name');
                     const assetContainer = cardEl.querySelector('.asset-content').parentElement;
                     
-                    nameEl.style.opacity = '0'; // Quick fade out text
-                    assetContainer.innerHTML = generateCardContent(originalData);
-                    nameEl.textContent = originalData.name;
-                    
-                    setTimeout(() => { nameEl.style.opacity = '1'; }, 100);
+                    // Replace content with new image (without text)
+                    assetContainer.innerHTML = `
+                        <div class="matched-slime"></div>
+                        ${generateCardContent(originalData)}
+                    `;
                 };
                 
                 updateCardDOM(card1, card1OriginalData);
